@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Task } from '@/contexts/ProjectContext';
 import { Tag, Calendar, Paperclip, Share, Trash2, Users, Eye, CheckSquare, Clock, Plus } from 'lucide-react';
 
@@ -24,6 +25,17 @@ const COLUMN_LABELS: Record<Task['status'], string> = {
   done: 'Done',
 };
 
+const PRIORITY_LABELS: Record<Task['priority'], string> = {
+  baixa: 'Baixa',
+  media: 'Média',
+  alta: 'Alta',
+};
+const PRIORITY_COLORS: Record<Task['priority'], string> = {
+  baixa: 'bg-blue-500',
+  media: 'bg-yellow-500',
+  alta: 'bg-red-500',
+};
+
 const TaskModal: React.FC<TaskModalProps> = ({
   open,
   onOpenChange,
@@ -33,16 +45,18 @@ const TaskModal: React.FC<TaskModalProps> = ({
 }) => {
   const [title, setTitle] = useState(task?.text ?? '');
   const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<Task['priority']>(task?.priority ?? 'media');
   const [editing, setEditing] = useState(false);
 
   React.useEffect(() => {
     setTitle(task?.text ?? '');
+    setPriority(task?.priority ?? 'media');
   }, [task]);
 
   if (!task) return null;
 
   const handleSave = () => {
-    onSave(task.id, { text: title });
+    onSave(task.id, { text: title, priority });
     setEditing(false);
     onOpenChange(false);
   };
@@ -53,20 +67,56 @@ const TaskModal: React.FC<TaskModalProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[600px]">
           {/* Main Content Area */}
           <div className="lg:col-span-3 p-6 space-y-6 overflow-y-auto">
-            {/* Header with icon and title */}
+            {/* Header with icon, title and priority */}
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center mt-1">
                 <CheckSquare className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               </div>
               <div className="flex-1">
-                <Input
-                  className="text-xl font-semibold px-0 border-none shadow-none focus:ring-0 focus-visible:ring-0 bg-transparent text-gray-900 dark:text-white"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  readOnly={!editing}
-                  autoFocus={editing}
-                  placeholder="Título da tarefa"
-                />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <Input
+                    className="text-xl font-semibold px-0 border-none shadow-none focus:ring-0 focus-visible:ring-0 bg-transparent text-gray-900 dark:text-white"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    readOnly={!editing}
+                    autoFocus={editing}
+                    placeholder="Título da tarefa"
+                  />
+                  {/* Prioridade */}
+                  {editing ? (
+                    <div className="w-36">
+                      <Select value={priority} onValueChange={val => setPriority(val as Task['priority'])}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Prioridade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="baixa">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-blue-500" />
+                              Baixa
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="media">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-yellow-500" />
+                              Média
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="alta">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-red-500" />
+                              Alta
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <span className={`inline-flex items-center gap-2 px-2 py-1 text-xs rounded ${PRIORITY_COLORS[priority]} text-white font-semibold`}>
+                      {PRIORITY_LABELS[priority]}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     na lista
@@ -129,6 +179,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       onClick={() => {
                         setEditing(false);
                         setTitle(task.text ?? '');
+                        setPriority(task.priority ?? 'media');
+                        // Não limpa a descrição pois ela é local só desse modal
                       }}
                     >
                       Cancelar
@@ -280,3 +332,4 @@ const TaskModal: React.FC<TaskModalProps> = ({
 };
 
 export default TaskModal;
+

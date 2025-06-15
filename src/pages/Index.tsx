@@ -10,7 +10,7 @@ import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
-  const { activeProject, updateTaskStatus, updateTaskOrder } = useProjects();
+  const { activeProject, tasks, updateTaskStatus } = useProjects();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [filter, setFilter] = useState('todas');
 
@@ -18,30 +18,33 @@ const Index = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  // Drag handler (update task status)
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !activeProject) return;
 
     const { draggableId, source, destination } = result;
-    
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
 
     const newStatus = destination.droppableId as 'todo' | 'doing' | 'done';
-    updateTaskStatus(activeProject.id, draggableId, newStatus);
-    updateTaskOrder(activeProject.id, draggableId, destination.index);
+    updateTaskStatus(draggableId, newStatus);
+    // If you need `updateTaskOrder`, implement it in context later.
   };
 
+  // Get filtered tasks for the column, based on active project
   const getFilteredTasks = (status: 'todo' | 'doing' | 'done') => {
     if (!activeProject) return [];
-    
-    const statusTasks = activeProject.tasks.filter(task => task.status === status);
-    
+
+    // Get all tasks for this project and status
+    const statusTasks = tasks
+      .filter(task => task.projectId === activeProject.id && task.status === status);
+
     switch (filter) {
       case 'recentes':
-        return statusTasks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return [...statusTasks].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       case 'antigas':
-        return statusTasks.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        return [...statusTasks].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       case 'alta':
         return statusTasks.filter(task => task.priority === 'alta');
       case 'media':
@@ -56,7 +59,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
-      
       {/* Main Content */}
       <div className={`flex-1 transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
         {/* Header */}
@@ -75,7 +77,7 @@ const Index = () => {
                 {activeProject ? activeProject.name : 'Selecione um Projeto'}
               </h1>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Select value={filter} onValueChange={setFilter}>
                 <SelectTrigger className="w-48">
@@ -90,11 +92,11 @@ const Index = () => {
                   <SelectItem value="baixa">Prioridade Baixa</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <LiveClock />
             </div>
           </div>
-          
+
           {activeProject?.description && (
             <p className="text-gray-600 dark:text-gray-400 mt-2">{activeProject.description}</p>
           )}
@@ -109,19 +111,19 @@ const Index = () => {
                   title="To Do"
                   status="todo"
                   tasks={getFilteredTasks('todo')}
-                  projectId={activeProject.id}
+                  count={getFilteredTasks('todo').length}
                 />
                 <KanbanColumn
                   title="Doing"
                   status="doing"
                   tasks={getFilteredTasks('doing')}
-                  projectId={activeProject.id}
+                  count={getFilteredTasks('doing').length}
                 />
                 <KanbanColumn
                   title="Done"
                   status="done"
                   tasks={getFilteredTasks('done')}
-                  projectId={activeProject.id}
+                  count={getFilteredTasks('done').length}
                 />
               </div>
             </DragDropContext>

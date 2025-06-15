@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Task, Priority } from '@/pages/Index';
+import { Task } from '@/contexts/ProjectContext';
 
 const STORAGE_KEY = 'todo-tasks';
 
@@ -28,13 +28,14 @@ export const useTasks = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (text: string, priority: Priority) => {
+  const addTask = (text: string, priority: Task['priority']) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       text,
-      completed: false,
       priority,
+      status: 'todo',
       createdAt: new Date(),
+      projectId: '', // Will need to be set based on current project
     };
     setTasks(prev => [...prev, newTask]);
   };

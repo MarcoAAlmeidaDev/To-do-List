@@ -4,15 +4,15 @@ import { CheckCircle2, Circle, Edit2, Trash2, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Task, Priority } from '@/pages/Index';
+import { Task } from '@/contexts/ProjectContext';
 
 interface TaskItemProps {
   task: Task;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  getPriorityColor: (priority: Priority) => string;
-  getPriorityBadgeVariant: (priority: Priority) => "default" | "secondary" | "destructive" | "outline";
+  getPriorityColor: (priority: Task['priority']) => string;
+  getPriorityBadgeVariant: (priority: Task['priority']) => "default" | "secondary" | "destructive" | "outline";
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -25,7 +25,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   return (
     <Card className={`transition-all duration-300 hover:shadow-lg border-l-4 ${
-      task.completed 
+      task.status === 'done'
         ? 'bg-gray-50 border-l-gray-300 opacity-75' 
         : `border-l-${getPriorityColor(task.priority).split('-')[1]}-500`
     }`}>
@@ -46,7 +46,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             onClick={onToggle}
             className="p-1 h-auto hover:bg-transparent"
           >
-            {task.completed ? (
+            {task.status === 'done' ? (
               <CheckCircle2 className="w-5 h-5 text-green-500" />
             ) : (
               <Circle className="w-5 h-5 text-gray-400 hover:text-gray-600" />
@@ -56,7 +56,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {/* Task Text */}
           <div className="flex-1 min-w-0">
             <p className={`font-medium truncate ${
-              task.completed ? 'line-through text-gray-500' : 'text-gray-900'
+              task.status === 'done' ? 'line-through text-gray-500' : 'text-gray-900'
             }`}>
               {task.text}
             </p>
@@ -77,7 +77,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               size="sm"
               onClick={onEdit}
               className="p-2 h-auto text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-              disabled={task.completed}
+              disabled={task.status === 'done'}
             >
               <Edit2 className="w-4 h-4" />
             </Button>

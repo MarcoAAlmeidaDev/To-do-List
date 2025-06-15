@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Priority } from '@/pages/Index';
+import { Task } from '@/contexts/ProjectContext';
 
 interface TaskFormProps {
   initialText?: string;
-  initialPriority?: Priority;
-  onSubmit: (text: string, priority: Priority) => void;
+  initialPriority?: Task['priority'];
+  onSubmit: (text: string, priority: Task['priority']) => void;
   onCancel: () => void;
   title: string;
 }
@@ -22,7 +22,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   title,
 }) => {
   const [text, setText] = useState(initialText);
-  const [priority, setPriority] = useState<Priority>(initialPriority);
+  const [priority, setPriority] = useState<Task['priority']>(initialPriority);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="task-priority">Prioridade</Label>
-          <Select value={priority} onValueChange={(value: Priority) => setPriority(value)}>
+          <Select value={priority} onValueChange={(value: Task['priority']) => setPriority(value)}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>

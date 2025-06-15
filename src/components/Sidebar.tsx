@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, Folder, Sun, Moon, Settings } from 'lucide-react';
+import { Plus, Folder, Sun, Moon, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useProjects } from '@/contexts/ProjectContext';
@@ -30,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   };
 
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-64'} transition-all duration-300 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full`}>
+    <div className={`${isCollapsed ? 'w-16' : 'w-64'} transition-all duration-300 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen fixed left-0 top-0 z-10`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         {!isCollapsed && (
@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
       </div>
 
       {/* Projects List */}
-      <div className="flex-1 p-4 space-y-2">
+      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
         {!isCollapsed && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -109,6 +109,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
             <Sun className="w-4 h-4 mr-2" />
           )}
           {!isCollapsed && (theme === 'light' ? 'Modo Escuro' : 'Modo Claro')}
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`w-full justify-start ${isCollapsed ? 'px-2' : ''}`}
+          onClick={() => console.log('Configurações clicadas')}
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          {!isCollapsed && 'Configurações'}
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`w-full justify-start ${isCollapsed ? 'px-2' : ''} text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20`}
+          onClick={() => console.log('Logout clicado')}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          {!isCollapsed && 'Sair'}
         </Button>
       </div>
     </div>
